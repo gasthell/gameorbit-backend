@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: gameorbit
+      POSTGRES_USER: gameorbit_user
+      POSTGRES_PASSWORD: gameorbit_pass
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  django:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - '8080:8000'
+    environment:
+      - DJANGO_SETTINGS_MODULE=gameorbit.settings
+      - DATABASE_URL=postgres://gameorbit_user:gameorbit_pass@db:5432/gameorbit
+    depends_on:
+      - db
+
+  fastapi:
+    build: .
+    command: uvicorn fastapi_app.main:app --host 0.0.0.0 --port 8001 --reload
+    volumes:
+      - .:/app
+    ports:
+      - '8001:8001'
+    environment:
+      - DJANGO_SETTINGS_MODULE=gameorbit.settings
+      - DATABASE_URL=postgres://gameorbit_user:gameorbit_pass@db:5432/gameorbit
+    depends_on:
+      - db
+      - django
+
+volumes:
+  postgres_data:

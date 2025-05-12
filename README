@@ -1,0 +1,20 @@
+To run:
+
+docker-compose up --build
+
+To restart after migration:
+
+docker-compose down
+
+docker-compose up --build
+
+
+
+
+Project may not work properly until you apply the migrations for app(s):
+
+docker-compose exec django python manage.py makemigrations
+
+docker-compose exec django python manage.py migrate
+
+docker-compose exec django python manage.py createsuperuser
